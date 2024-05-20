@@ -81,6 +81,8 @@ BI_add ( bigInt a, bigInt b )
 {
     if (a.sign != b.sign)
     {
+        if (a.sign < 0)
+            return (BI_subtract(b, a));
         return (BI_subtract(a, b));
     }
 
@@ -110,24 +112,21 @@ BI_add ( bigInt a, bigInt b )
 }
 
 bigInt
-BI_subtract ( bigInt a, bigInt b )
+BI_subtract ( bigInt a, bigInt b ) // check sign, check size and handle when what is substracted bigger than what you substract from.
 {
-    if (a.sign != b.sign)
-    {
-        return (BI_add(a, b));
-    }
-
     bigInt result;
     BI_init(&result);
-
+    
     int borrow = 0;
     for (int i = 0; i < MAX_SIZE; i++)
     {
         int diff = (a.numbers[MAX_SIZE - 1 - i] - '0') - (b.numbers[MAX_SIZE - 1 - i] - '0') - borrow;
-        if (diff < 0) {
+        if (diff < 0)
+        {
             diff += 10;
             borrow = 1;
-        } else
+        }
+        else
             borrow = 0;
         result.numbers[MAX_SIZE - 1 - i] = diff + '0';
     }

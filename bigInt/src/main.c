@@ -27,6 +27,12 @@ test_BI_add()
     wwrite("9123456 + -789012 = ");
     BI_print(result);
 
+    BI_setValue(&a, "9123456");
+    BI_setValue(&b, "-789012");
+    result = BI_add(b, a);
+    wwrite("-789012 + 9123456 = ");
+    BI_print(result);
+
     // Test addition resulting in overflow
     BI_setValue(&a, "999999");
     BI_setValue(&b, "1");
