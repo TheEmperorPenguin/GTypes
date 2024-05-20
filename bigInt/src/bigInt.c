@@ -82,12 +82,14 @@ BI_add ( bigInt a, bigInt b )
     if (a.sign != b.sign)
     {
         if (a.sign < 0)
+        {
+            a.sign = 1;
             return (BI_subtract(b, a));
+        }
+        b.sign = 1;
         return (BI_subtract(a, b));
     }
 
-    //is final size sufficient?
-    
     bigInt result;
     BI_init(&result);
 
@@ -112,11 +114,22 @@ BI_add ( bigInt a, bigInt b )
 }
 
 bigInt
-BI_subtract ( bigInt a, bigInt b ) // check sign, check size and handle when what is substracted bigger than what you substract from.
+BI_subtract ( bigInt a, bigInt b ) //check size and handle when what is substracted bigger than what you substract from.
 {
     bigInt result;
     BI_init(&result);
     
+    if (a.sign != b.sign)
+    {
+        if (a.sign < 0)
+        {
+            a.sign = 1;
+            return (BI_add(b, a));
+        }
+        b.sign = 1;
+        return (BI_add(a, b));
+    }
+
     int borrow = 0;
     for (int i = 0; i < MAX_SIZE; i++)
     {
