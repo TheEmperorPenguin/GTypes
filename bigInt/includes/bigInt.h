@@ -6,7 +6,7 @@
 #   define ewrite(x) write(1, x, strlen(x));
 
 #   include <stdio.h>
-#   include <unistd.h>
+#   include <unistd.h> 
 #   include <string.h>
 
 //char based until i think of a better way to memorize data
@@ -15,6 +15,12 @@
 //create a table to link int error to actual error messages (already kind of doing it with the #ifdef DEBUG but the code looks messy)
 
 //No input verification on user input when setValue used for now, will add something but maybe in another function? or set with a define so it's removable if user is sure of input
+
+//divide
+//modulo
+//inverse
+//++
+//--
 
 typedef struct s_bigInt
 {
@@ -37,5 +43,7 @@ int     BI_getSize( bigInt a );
 
 bigInt  BI_add ( bigInt a, bigInt b );
 bigInt  BI_subtract ( bigInt a, bigInt b );
+bigInt BI_multiply ( bigInt a, bigInt b );
+int     BI_compare ( bigInt a, bigInt b );
 
 #endif

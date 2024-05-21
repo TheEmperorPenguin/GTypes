@@ -76,6 +76,24 @@ BI_getSize( bigInt a )
     return (a.size);
 }
 
+int
+BI_compare ( bigInt a, bigInt b )
+{
+    if (a.size > b.size)
+        return 1;
+    if (a.size < b.size)
+        return -1;
+    
+    for (int i = 0; i < a.size; i++)
+    {
+        if (a.numbers[MAX_SIZE - a.size + i] > b.numbers[MAX_SIZE - b.size + i])
+            return 1;
+        if (a.numbers[MAX_SIZE - a.size + i] < b.numbers[MAX_SIZE - b.size + i])
+            return -1;
+    }
+    return 0;
+}
+
 bigInt
 BI_add ( bigInt a, bigInt b )
 {
@@ -113,8 +131,7 @@ BI_add ( bigInt a, bigInt b )
     return result;
 }
 
-bigInt
-BI_subtract ( bigInt a, bigInt b ) //check size and handle when what is substracted bigger than what you substract from.
+bigInt BI_subtract ( bigInt a, bigInt b )
 {
     bigInt result;
     BI_init(&result);
@@ -123,11 +140,24 @@ BI_subtract ( bigInt a, bigInt b ) //check size and handle when what is substrac
     {
         if (a.sign < 0)
         {
-            a.sign = 1;
+            b.sign = -1;
             return (BI_add(b, a));
         }
         b.sign = 1;
         return (BI_add(a, b));
+    }
+
+    int comparison = BI_compare(a, b);
+    if (comparison < 0)
+    {
+        bigInt temp = a;
+        a = b;
+        b = temp;
+        result.sign = -1;
+    }
+    else
+    {
+        result.sign = a.sign;
     }
 
     int borrow = 0;
@@ -151,6 +181,71 @@ BI_subtract ( bigInt a, bigInt b ) //check size and handle when what is substrac
     if (result.size == 0)
         result.size = 1;
 
-    result.sign = a.sign;
+    return result;
+}
+
+bigInt
+BI_shiftLeft( bigInt num, int shift )
+{
+    bigInt result;
+    BI_init(&result);
+
+    if (shift >= MAX_SIZE)
+    {
+        result.overflow = 1;
+        return result;
+    }
+
+    for (int i = 0; i < MAX_SIZE - shift; i++)
+    {
+        result.numbers[i] = num.numbers[i + shift];
+    }
+
+    result.size = num.size + shift;
+    if (result.size > MAX_SIZE)
+    {
+        result.overflow = 1;
+        result.size = MAX_SIZE;
+    }
+
+    result.sign = num.sign;
+    return result;
+}
+
+bigInt
+BI_multiply( bigInt a, bigInt b )
+{
+    bigInt result;
+    BI_init(&result);
+
+    for (int i = 0; i < b.size; i++)
+    {
+        bigInt temp;
+        BI_init(&temp);
+        int digit = b.numbers[MAX_SIZE - 1 - i] - '0';
+
+        int carry = 0;
+        for (int j = 0; j < a.size; j++)
+        {
+            int prod = digit * (a.numbers[MAX_SIZE - 1 - j] - '0') + carry;
+            temp.numbers[MAX_SIZE - 1 - j] = (prod % 10) + '0';
+            carry = prod / 10;
+        }
+        
+        if (carry > 0)
+        {
+            temp.numbers[MAX_SIZE - a.size - 1] = carry + '0';
+            temp.size = a.size + 1;
+        }
+        else
+        {
+            temp.size = a.size;
+        }
+
+        temp = BI_shiftLeft(temp, i);
+        result = BI_add(result, temp);
+    }
+
+    result.sign = (a.sign == b.sign) ? 1 : -1;
     return result;
 }
